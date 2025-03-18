@@ -1,0 +1,23 @@
+FROM node:alpine
+
+WORKDIR /usr/src/app
+# COPY ./apps/web/package.json ./apps/web/package.json
+COPY ./package.json ./package.json
+COPY ./apps/web/package.json ./apps/web/package.json
+
+
+COPY ./packages ./packages
+RUN npm install
+COPY ./turbo.json ./turbo.json
+COPY ./apps/web ./apps/web
+
+
+ENV NODE_ENV=development
+ENV CHOKIDAR_USEPOLLING=true
+ENV WATCHPACK_POLLING=true
+ENV NEXTJS_IGNORE_ESLINT=true
+
+
+
+EXPOSE 3000
+CMD ["npm", "run", "dev"]
