@@ -1,0 +1,30 @@
+FROM node:alpine 
+
+WORKDIR /usr/src
+
+COPY ./package.json ./package.json
+COPY ./packages ./packages
+COPY ./turbo.json ./turbo.json
+COPY ./apps/web/package.json ./apps/web/package.json
+
+RUN npm install
+
+COPY ./apps/web ./apps/web
+
+WORKDIR /usr/src/packages/db
+RUN npx prisma generate
+
+
+WORKDIR /usr/src
+# ARG DATABASE_URL 
+WORKDIR /usr/src/packages/db
+RUN --mount=type=secret,id=env_file,required \
+  source /run/secrets/env_file && \
+  cd ../../apps/web && \
+  npm run build
+
+WORKDIR /usr/src/apps/web
+# RUN 
+  
+CMD ["npm", "start"]
+
