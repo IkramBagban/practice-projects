@@ -1,0 +1,19 @@
+FROM node:alpine
+
+WORKDIR /usr/src/app
+
+COPY ./package.json ./package.json
+COPY ./packages ./packages
+COPY ./turbo.json ./turbo.json
+COPY ./apps/http-server/tsconfig.json ./apps/http-server/tsconfig.json
+
+
+RUN npm install
+RUN npm install esbuild esbuild-runner
+
+COPY ./apps/http-server ./apps/http-server
+RUN cd ./apps/http-server
+RUN npx tsc -b
+RUN cd ../..
+
+CMD ["node", "dist/index"]
