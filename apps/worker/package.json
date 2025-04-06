@@ -1,5 +1,5 @@
 {
-  "name": "http-server",
+  "name": "worker",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -7,10 +7,10 @@
   },
   "author": "",
   "license": "ISC",
+  "description": "",
   "dependencies": {
     "@types/express": "^5.0.1",
     "express": "^5.1.0",
     "redis": "^4.7.0"
-  },
-  "description": ""
+  }
 }
