@@ -11,9 +11,11 @@ interface ISubmission {
 class StoreManager {
   private submissions: Set<ISubmission> | null = null;
   private static instance: StoreManager | null = null;
+  private totalRequestProcessByThisServer;
 
   private constructor() {
     this.submissions = new Set();
+    this.totalRequestProcessByThisServer = 0;
   }
 
   static getInstance() {
@@ -30,10 +32,17 @@ class StoreManager {
     this.submissions?.add(payload);
   }
 
+  increaseProcessReq() {
+    this.totalRequestProcessByThisServer++;
+  }
+
   startLogger() {
     setInterval(
-      () => console.log("--------------------------------", this.submissions),
-      5000
+      () =>
+        console.log(
+          `total request processed by this worker is ${this.totalRequestProcessByThisServer}`
+        ),
+      2000
     );
   }
 }
