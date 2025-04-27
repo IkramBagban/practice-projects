@@ -27,7 +27,7 @@ export class PubsubManager {
     return PubsubManager.instance;
   }
   async connectClients() {
-    Promise.all([
+    await Promise.all([
       await this.publishClient.connect(),
       await this.subscribeClient.connect(),
     ]);
@@ -35,18 +35,27 @@ export class PubsubManager {
     console.log("pub sub clients connected");
   }
 
-  publish(channel: string, message: string) {
-    this.publishClient.publish(channel, JSON.stringify(message));
+  async publish(channel: string, message: string) {
+    await this.publishClient.publish(channel, JSON.stringify(message));
   }
 
-  subscribe(channel: string, cb: (msg: any) => void) {
+  async subscribe(channel: string, cb: (msg: any) => void) {
     if (this.subscribedChannels.has(channel))
       return console.log(`Already subscribed to channel: ${channel}`);
     this.subscribedChannels.add(channel);
-    this.subscribeClient.subscribe(channel, (msg) => {
+    await this.subscribeClient.subscribe(channel, (msg) => {
       console.log(`[listener]: Received message from channel ${channel}`, msg);
       cb(msg);
     });
+  }
+
+  async unsubscribe(channel: string) {
+    try {
+      await this.subscribeClient.unsubscribe(channel);
+      this.subscribedChannels.delete(channel);
+    } catch (error) {
+      console.log("error while unsubscribing");
+    }
   }
 }
 

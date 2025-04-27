@@ -1,14 +1,15 @@
 // @ts-nocheck
 import { WebSocket, WebSocketServer } from "ws";
 import { store } from "./store";
-import { pubsubManager } from "./pubsub";
+import { PubsubManager, pubsubManager } from "./pubsub";
 
-const wss = new WebSocketServer({ port: 9090 });
+const PORT = process.env.PORT || 9090;
+const wss = new WebSocketServer({ port: PORT });
 
 enum Actions {
   SEND_MESSAGE = "SEND_MESSAGE",
   SUBSCRIBE = "SUBSCRIBE",
-  JOIN_ROOM = "JOIN_ROOM",
+  UNSUBSCRIBE = "UNSUBSCRIBE",
 }
 
 const safeParse = (data: any): any | null => {
@@ -39,27 +40,32 @@ wss.on("connection", (socket: WebSocket) => {
   const userId = store.addUser(socket);
   socket.send("Your userid " + userId);
 
-  socket.on("message", (data) => {
+  socket.on("message",async (data) => {
     const parsedData = JSON.parse(data.toString());
 
     switch (parsedData?.type) {
-      case Actions.JOIN_ROOM:
-        console.log("JOIN_ROOM", parsedData);
+      case Actions.SUBSCRIBE:
         store.joinRoom(userId, parsedData?.roomId, socket);
         pubsubManager.subscribe(parsedData?.roomId, (msg) => {
           store.getAllRoomUsers(parsedData?.roomId)?.forEach((userSocker) => {
             userSocker.send(msg);
           });
         });
+        break;
 
+      case Actions.UNSUBSCRIBE:
+        await pubsubManager.unsubscribe(parsedData.roomId);
         break;
 
       case Actions.SEND_MESSAGE:
         const { roomId, message } = parsedData;
-        pubsubManager.publish(roomId, message);
+        await pubsubManager.publish(roomId, message);
+        break;
 
       default:
         break;
     }
   });
 });
+
+console.log("Connected to port " + PORT);
