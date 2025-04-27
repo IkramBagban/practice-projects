@@ -1,8 +1,9 @@
 // @ts-nocheck
 import { WebSocket, WebSocketServer } from "ws";
 import { store } from "./store";
+import { pubsubManager } from "./pubsub";
 
-const wss = new WebSocketServer({ port: 8090 });
+const wss = new WebSocketServer({ port: 8080 });
 
 enum Actions {
   SEND_MESSAGE = "SEND_MESSAGE",
@@ -30,6 +31,10 @@ const safeStringify = (data: string): any | null => {
   }
 };
 
+pubsubManager.subscribeClient.on("message", (channel, message) => {
+  console.log("Received message from Redis:", { channel, message });
+});
+
 wss.on("connection", (socket: WebSocket) => {
   const userId = store.addUser(socket);
   socket.send("Your userid " + userId);
@@ -41,15 +46,17 @@ wss.on("connection", (socket: WebSocket) => {
       case Actions.JOIN_ROOM:
         console.log("JOIN_ROOM", parsedData);
         store.joinRoom(userId, parsedData?.roomId, socket);
+        pubsubManager.subscribe(parsedData?.roomId, (msg) => {
+          store.getAllRoomUsers(parsedData?.roomId)?.forEach((userSocker) => {
+            userSocker.send(msg);
+          });
+        });
 
         break;
 
       case Actions.SEND_MESSAGE:
         const { roomId, message } = parsedData;
-        console.log("SENDING MESSAGE", parsedData);
-        store.getAllRoomUsers(roomId)?.forEach((client) => {
-          client.send(JSON.stringify(message));
-        });
+        pubsubManager.publish(roomId, message);
 
       default:
         break;
