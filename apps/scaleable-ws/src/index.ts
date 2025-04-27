@@ -3,7 +3,7 @@ import { WebSocket, WebSocketServer } from "ws";
 import { store } from "./store";
 import { pubsubManager } from "./pubsub";
 
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: 9090 });
 
 enum Actions {
   SEND_MESSAGE = "SEND_MESSAGE",
