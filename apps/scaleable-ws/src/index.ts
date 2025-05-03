@@ -14,7 +14,6 @@ enum Actions {
 
 const safeParse = (data: any): any | null => {
   try {
-    console.log("DATA", data);
     const parsedData = JSON.parse(data);
     return parsedData;
   } catch (error) {
