@@ -1,5 +1,5 @@
 {
-  "name": "scaleable-ws",
+  "name": "scaleable-chat",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/redis": "^4.0.11",
     "@types/ws": "^8.18.1",
+    "kafkajs": "^2.2.4",
     "redis": "^4.7.0",
     "ws": "^8.18.1"
   },
