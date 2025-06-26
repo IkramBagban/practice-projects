@@ -9,7 +9,6 @@ const init = async () => {
     const data = await queue.brPop("chat-queue", 0);
     if (!data) return console.log("data is null");
     const parsedData = JSON.parse(data?.element);
-    console.log("data", parsedData);
 
     const payload = { ...parsedData, type: undefined };
     await prismaClient.chat.create({
